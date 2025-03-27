@@ -1,0 +1,5 @@
+<resources>
+    <!-- Custom PopupMenu Style -->
+    <style name="PopupMenuStyle" parent="Widget.AppCompat.PopupMenu">
+    </style>
+</resources>

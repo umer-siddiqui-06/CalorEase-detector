@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="20dp">
+
+    <!-- Attach Photo at the Top -->
+    <LinearLayout
+        android:id="@+id/attachPhotoLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:layout_marginBottom="20dp">
+
+        <ImageView
+            android:id="@+id/attachPhotoIcon"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:contentDescription="Attach Photo Icon"
+            android:src="@drawable/ic_attach_photo" />
+
+        <TextView
+            android:id="@+id/attachPhotoText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="Attach Photo"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Spacer to Push Meal Layout to Bottom -->
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="332dp"
+        android:layout_weight="1" />
+
+    <!-- Attach Meal at the Bottom -->
+    <LinearLayout
+        android:id="@+id/attachMealLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:layout_marginTop="20dp">
+
+        <ImageView
+            android:id="@+id/attachMealIcon"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:contentDescription="Attach Meal Icon"
+            android:src="@drawable/ic_attach_meal" />
+
+        <TextView
+            android:id="@+id/attachMealText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="Meal Plan"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Hidden ImageView -->
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:visibility="gone"
+        android:scaleType="centerCrop"/>
+</LinearLayout>
