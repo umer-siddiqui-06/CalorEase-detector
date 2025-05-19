@@ -35,11 +35,16 @@ import java.util.Map;
 public class ThirdActivity extends AppCompatActivity {
 
     private ImageView imageView;
-    private TextView resultTextView;
     private static final int INPUT_SIZE = 640;
     private static final float CONFIDENCE_THRESHOLD = 0.5f;
     private static final float IOU_THRESHOLD = 0.5f;
     private Map<String, Nutrients> nutritionData;
+
+    private TextView proteinTextView;
+    private TextView fiberTextView;
+    private TextView carbsTextView;
+    private TextView fatTextView;
+    private TextView caloriesTextView;
 
     private final String[] CLASS_NAMES = {
             "Bitter melon", "Brinjal", "Cabbage", "Calabash", "Capsicum", "Cauliflower",
@@ -59,9 +64,14 @@ public class ThirdActivity extends AppCompatActivity {
         setContentView(R.layout.activity_third);
 
         imageView = findViewById(R.id.selectedImageView);
-        resultTextView = findViewById(R.id.resultTextView);
 
-        // Load nutrition data
+        // Initialize nutrient TextViews
+        proteinTextView = findViewById(R.id.proteinTextView);
+        fiberTextView = findViewById(R.id.fiberTextView);
+        carbsTextView = findViewById(R.id.carbsTextView);
+        fatTextView = findViewById(R.id.fatTextView);
+        caloriesTextView = findViewById(R.id.caloriesTextView);
+
         nutritionData = loadNutritionData();
 
         Intent intent = getIntent();
@@ -84,7 +94,7 @@ public class ThirdActivity extends AppCompatActivity {
             reader.close();
 
             JSONObject jsonObject = new JSONObject(jsonString.toString());
-            Iterator<String> keys = jsonObject.keys(); // ✅ Replaced keySet() with keys()
+            Iterator<String> keys = jsonObject.keys();
             while (keys.hasNext()) {
                 String fruit = keys.next();
                 JSONObject nutrients = jsonObject.getJSONObject(fruit);
@@ -97,7 +107,7 @@ public class ThirdActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            resultTextView.setText("Error loading nutrition data: " + e.getMessage());
+            // Handle error silently or log, no UI update since no resultTextView
         }
         return data;
     }
@@ -112,7 +122,7 @@ public class ThirdActivity extends AppCompatActivity {
             ByteBuffer inputBuffer = convertBitmapToByteBuffer(resizedBitmap);
 
             Interpreter interpreter = new Interpreter(loadModelFile("best_model.tflite"));
-            float[][][] output = new float[1][36][8400];
+            float[][][] output = new float[1][36][8400]; // adjust shape if needed
 
             interpreter.run(inputBuffer, output);
             List<Detection> result = postprocessOutput(output[0]);
@@ -121,7 +131,7 @@ public class ThirdActivity extends AppCompatActivity {
 
         } catch (Exception e) {
             e.printStackTrace();
-            resultTextView.setText("Error: " + e.getMessage());
+            // Handle error silently or log
         }
     }
 
@@ -214,7 +224,7 @@ public class ThirdActivity extends AppCompatActivity {
         Collections.sort(detections, new Comparator<Detection>() {
             @Override
             public int compare(Detection d1, Detection d2) {
-                return Float.compare(d2.count, d1.count);
+                return Integer.compare(d2.count, d1.count);
             }
         });
 
@@ -288,47 +298,57 @@ public class ThirdActivity extends AppCompatActivity {
 
     private void displayResults(List<Detection> detections) {
         if (detections.isEmpty()) {
-            resultTextView.setText("No objects detected.");
-        } else {
-            StringBuilder result = new StringBuilder();
-            for (Detection detection : detections) {
-                result.append("Food: ").append(detection.name).append("\n");
-                result.append("Amount: ").append(detection.count).append("\n");
-                result.append("Calories: ").append(String.format("%.1f", detection.nutrients.calories)).append(" kcal\n");
-                result.append("Protein: ").append(String.format("%.1f", detection.nutrients.protein)).append(" g\n");
-                result.append("Carbs: ").append(String.format("%.1f", detection.nutrients.carbs)).append(" g\n");
-                result.append("Fat: ").append(String.format("%.1f", detection.nutrients.fat)).append(" g\n");
-                result.append("Fiber: ").append(String.format("%.1f", detection.nutrients.fiber)).append(" g\n\n");
-            }
-            resultTextView.setText(result.toString());
+            // No objects detected - show zeros in nutrient views
+            proteinTextView.setText("Protein: 0 g");
+            fiberTextView.setText("Fiber: 0 g");
+            carbsTextView.setText("Carbs: 0 g");
+            fatTextView.setText("Fat: 0 g");
+            caloriesTextView.setText("Calories: 0 kcal");
+            return;
         }
+
+        float totalProtein = 0f, totalFiber = 0f, totalCarbs = 0f, totalFat = 0f, totalCalories = 0f;
+
+        for (Detection detection : detections) {
+            totalProtein += detection.nutrients.protein;
+            totalFiber += detection.nutrients.fiber;
+            totalCarbs += detection.nutrients.carbs;
+            totalFat += detection.nutrients.fat;
+            totalCalories += detection.nutrients.calories;
+        }
+
+        proteinTextView.setText(String.format("Protein: %.1f g", totalProtein));
+        fiberTextView.setText(String.format("Fiber: %.1f g", totalFiber));
+        carbsTextView.setText(String.format("Carbs: %.1f g", totalCarbs));
+        fatTextView.setText(String.format("Fat: %.1f g", totalFat));
+        caloriesTextView.setText(String.format("Calories: %.1f kcal", totalCalories));
     }
 
-    class Detection {
-        String name;
-        int count;
-        Nutrients nutrients;
-
-        Detection(String name, int count, Nutrients nutrients) {
-            this.name = name;
-            this.count = count;
-            this.nutrients = nutrients;
-        }
-    }
-
-    class Nutrients {
+    private static class Nutrients {
         float calories;
         float protein;
         float carbs;
         float fat;
         float fiber;
 
-        Nutrients(float calories, float protein, float carbs, float fat, float fiber) {
+        public Nutrients(float calories, float protein, float carbs, float fat, float fiber) {
             this.calories = calories;
             this.protein = protein;
             this.carbs = carbs;
             this.fat = fat;
             this.fiber = fiber;
+        }
+    }
+
+    private static class Detection {
+        String name;
+        int count;
+        Nutrients nutrients;
+
+        public Detection(String name, int count, Nutrients nutrients) {
+            this.name = name;
+            this.count = count;
+            this.nutrients = nutrients;
         }
     }
 }
